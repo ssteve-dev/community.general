@@ -899,7 +899,7 @@ files:
     ignore: kbrebanov
   $modules/packaging/os/apt_rpm.py:
     authors: evgkrsk
-  $modules/packaging/os/:
+  $modules/packaging/os/pkg5:
     authors: mavit
     maintainers: $team_solaris
     labels: pkg5 solaris
@@ -1043,10 +1043,6 @@ files:
     ignore: dagwieers
   $modules/remote_management/imc/imc_rest.py:
     authors: dagwieers
-    labels: cisco
-  $modules/remote_management/intersight/intersight_info.py:
-    authors: CiscoUcs dsoper2
-    maintainers: movinalot
     labels: cisco
   $modules/remote_management/ipmi/:
     authors: bgaifullin

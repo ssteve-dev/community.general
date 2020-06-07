@@ -46,6 +46,13 @@ options:
     description:
       - List of device IDs on which to operate.
 
+  tags:
+    description:
+      - List of device tags.
+      - Currently implemented only for device creation.
+    type: list
+    elements: str
+
   facility:
     description:
       - Facility slug for device creation. See Packet API for current list - U(https://www.packet.net/developers/api/facilities/).
@@ -131,12 +138,13 @@ EXAMPLES = '''
 
 # Creating devices
 
-- name: create 1 device
+- name: Create 1 device
   hosts: localhost
   tasks:
   - packet_device:
       project_id: 89b497ee-5afc-420a-8fb5-56984898f4df
       hostnames: myserver
+      tags: ci-xyz
       operating_system: ubuntu_16_04
       plan: baremetal_0
       facility: sjc1
@@ -145,7 +153,7 @@ EXAMPLES = '''
 # ready for other API operations). Fail if the devices in not "active" in
 # 10 minutes.
 
-- name: create device and wait up to 10 minutes for active state
+- name: Create device and wait up to 10 minutes for active state
   hosts: localhost
   tasks:
   - packet_device:
@@ -157,7 +165,7 @@ EXAMPLES = '''
       state: active
       wait_timeout: 600
 
-- name: create 3 ubuntu devices called server-01, server-02 and server-03
+- name: Create 3 ubuntu devices called server-01, server-02 and server-03
   hosts: localhost
   tasks:
   - packet_device:
@@ -171,7 +179,7 @@ EXAMPLES = '''
 - name: Create 3 coreos devices with userdata, wait until they get IPs and then wait for SSH
   hosts: localhost
   tasks:
-  - name: create 3 devices and register their facts
+  - name: Create 3 devices and register their facts
     packet_device:
       hostnames: [coreos-one, coreos-two, coreos-three]
       operating_system: coreos_stable
@@ -198,7 +206,7 @@ EXAMPLES = '''
               command: start
     register: newhosts
 
-  - name: wait for ssh
+  - name: Wait for ssh
     wait_for:
       delay: 1
       host: "{{ item.public_ipv4 }}"
@@ -210,7 +218,7 @@ EXAMPLES = '''
 
 # Other states of devices
 
-- name: remove 3 devices by uuid
+- name: Remove 3 devices by uuid
   hosts: localhost
   tasks:
   - packet_device:
@@ -432,6 +440,7 @@ def create_single_device(module, packet_conn, hostname):
                             % param)
     project_id = module.params.get('project_id')
     plan = module.params.get('plan')
+    tags = module.params.get('tags')
     user_data = module.params.get('user_data')
     facility = module.params.get('facility')
     operating_system = module.params.get('operating_system')
@@ -446,6 +455,7 @@ def create_single_device(module, packet_conn, hostname):
     device = packet_conn.create_device(
         project_id=project_id,
         hostname=hostname,
+        tags=tags,
         plan=plan,
         facility=facility,
         operating_system=operating_system,
@@ -594,6 +604,7 @@ def main():
             facility=dict(),
             features=dict(type='dict'),
             hostnames=dict(type='list', aliases=['name']),
+            tags=dict(type='list', elements='str'),
             locked=dict(type='bool', default=False, aliases=['lock']),
             operating_system=dict(),
             plan=dict(),
